@@ -1,0 +1,81 @@
+'use client'
+
+import { useCallback, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { actualizarEstadoTarea } from '@/lib/actions/tasks'
+import type { TaskStatus } from '@/lib/types'
+
+interface Props {
+  taskId: string
+  statusActual: TaskStatus
+}
+
+const opciones: { valor: TaskStatus; etiqueta: string }[] = [
+  { valor: 'in_progress', etiqueta: 'En progreso' },
+  { valor: 'completed', etiqueta: 'Completada' },
+]
+
+export default function SelectorEstado({ taskId, statusActual }: Props) {
+  const [mensaje, setMensaje] = useState('')
+  const [error, setError] = useState('')
+  const [cargando, setCargando] = useState(false)
+  const router = useRouter()
+
+  const handleCambiar = useCallback(async (nuevoEstado: TaskStatus) => {
+    setCargando(true)
+    setMensaje('')
+    setError('')
+
+    const result = await actualizarEstadoTarea(taskId, nuevoEstado)
+
+    if (result.success) {
+      setMensaje(result.message)
+      router.refresh()
+    } else {
+      setError(result.message)
+    }
+
+    setCargando(false)
+  }, [taskId, router])
+
+  if (statusActual === 'completed' || statusActual === 'cancelled') {
+    return null
+  }
+
+  const disponibles = opciones.filter((o) => {
+    if (statusActual === 'pending') return o.valor === 'in_progress'
+    if (statusActual === 'in_progress') return o.valor === 'completed'
+    return false
+  })
+
+  if (disponibles.length === 0) return null
+
+  return (
+    <div>
+      {mensaje && (
+        <div className="mb-2 p-2 rounded bg-green-50 border border-green-200 text-green-700 text-xs">
+          {mensaje}
+        </div>
+      )}
+      {error && (
+        <div className="mb-2 p-2 rounded bg-red-50 border border-red-200 text-red-700 text-xs">
+          {error}
+        </div>
+      )}
+      <div className="flex gap-2">
+        {disponibles.map((op) => (
+          <button
+            key={op.valor}
+            type="button"
+            onClick={() => handleCambiar(op.valor)}
+            disabled={cargando}
+            className="px-3 py-1.5 rounded text-xs font-medium border transition-colors disabled:opacity-50
+              bg-green-700 text-white border-green-700 hover:bg-green-800"
+          >
+            {cargando ? '...' : op.etiqueta}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
