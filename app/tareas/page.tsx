@@ -17,6 +17,18 @@ interface Props {
   searchParams: Promise<{ page?: string; status?: string; fecha_desde?: string; fecha_hasta?: string; ubicacion?: string }>
 }
 
+function generarPaginas(pagina: number, total: number) {
+  const paginas: (number | 'ellipsis')[] = []
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= pagina - 1 && i <= pagina + 1)) {
+      paginas.push(i)
+    } else if (paginas[paginas.length - 1] !== 'ellipsis') {
+      paginas.push('ellipsis')
+    }
+  }
+  return paginas
+}
+
 export default async function ListadoTareas({ searchParams }: Props) {
   const params = await searchParams
   const pagina = Math.max(1, Number(params.page) || 1)
@@ -42,15 +54,17 @@ export default async function ListadoTareas({ searchParams }: Props) {
     return '/tareas' + (p.toString() ? '?' + p.toString() : '')
   }
 
+  const paginas = generarPaginas(pagina, resultado.totalPages)
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Tareas</h1>
+        <h1 className="text-2xl font-bold text-dark-carbon">Tareas</h1>
         <Link
           href="/tareas/nueva"
-          className="bg-green-700 text-white px-4 py-2 rounded text-sm font-medium hover:bg-green-800 transition-colors"
+          className="bg-forest-green text-white px-4 py-2 rounded text-sm font-medium hover:bg-[#14532d] transition-colors"
         >
-          Nueva tarea
+          + Nueva tarea
         </Link>
       </div>
 
@@ -61,14 +75,14 @@ export default async function ListadoTareas({ searchParams }: Props) {
       </Suspense>
 
       {resultado.data.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-lg">
+        <div className="text-center py-16">
+          <p className="text-lg text-medium-gray">
             {tieneFiltros ? 'No hay tareas que coincidan con los filtros' : 'No hay tareas registradas'}
           </p>
           {!tieneFiltros && (
             <Link
               href="/tareas/nueva"
-              className="inline-block mt-3 text-green-700 underline text-sm"
+              className="inline-block mt-3 text-forest-green hover:underline font-medium text-sm"
             >
               Crear la primera tarea
             </Link>
@@ -76,36 +90,36 @@ export default async function ListadoTareas({ searchParams }: Props) {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-600">
+              <thead className="bg-bg-gray text-dark-carbon text-xs uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium">Título</th>
-                  <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Tipo</th>
-                  <th className="text-left px-4 py-3 font-medium">Estado</th>
-                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Fecha</th>
-                  <th className="text-right px-4 py-3 font-medium">Acción</th>
+                  <th className="text-left px-4 py-3">Título</th>
+                  <th className="text-left px-4 py-3 hidden sm:table-cell">Tipo</th>
+                  <th className="text-left px-4 py-3">Estado</th>
+                  <th className="text-left px-4 py-3 hidden md:table-cell">Fecha</th>
+                  <th className="text-right px-4 py-3">Acción</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {resultado.data.map((tarea) => (
-                  <tr key={tarea.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-gray-900">{tarea.title}</td>
+                  <tr key={tarea.id} className="even:bg-bg-gray hover:bg-bg-gray/70 transition-colors">
+                    <td className="px-4 py-3 font-medium text-dark-carbon">{tarea.title}</td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <BadgeTipo type={tarea.type} />
                     </td>
                     <td className="px-4 py-3">
                       <BadgeEstado status={tarea.status} />
                     </td>
-                    <td className="px-4 py-3 text-gray-600 hidden md:table-cell">
+                    <td className="px-4 py-3 text-medium-gray hidden md:table-cell">
                       {formatearFecha(tarea.scheduled_date)}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/tareas/${tarea.id}`}
-                        className="text-green-700 hover:underline font-medium"
+                        className="text-forest-green hover:bg-forest-green/5 font-medium px-3 py-1.5 rounded-lg transition-colors inline-block"
                       >
-                        Ver
+                        Detalle
                       </Link>
                     </td>
                   </tr>
@@ -114,25 +128,50 @@ export default async function ListadoTareas({ searchParams }: Props) {
             </table>
           </div>
 
-          <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
-            <span>
+          <div className="flex items-center justify-between mt-4 text-sm">
+            <span className="text-medium-gray">
               Página {resultado.page} de {resultado.totalPages} ({resultado.total} tareas)
             </span>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-1.5">
               {pagina > 1 && (
                 <Link
                   href={construirUrl(pagina - 1)}
-                  className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors"
+                  className="px-2.5 py-1.5 rounded border border-gray-200 text-dark-carbon hover:bg-gray-50 transition-colors flex items-center gap-1"
                 >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
                   Anterior
                 </Link>
               )}
+
+              {paginas.map((p, idx) =>
+                p === 'ellipsis' ? (
+                  <span key={`e-${idx}`} className="px-1 text-medium-gray">...</span>
+                ) : (
+                  <Link
+                    key={p}
+                    href={construirUrl(p)}
+                    className={`w-8 h-8 rounded flex items-center justify-center text-sm font-medium transition-colors ${
+                      p === pagina
+                        ? 'bg-forest-green text-white'
+                        : 'text-dark-carbon hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    {p}
+                  </Link>
+                )
+              )}
+
               {pagina < resultado.totalPages && (
                 <Link
                   href={construirUrl(pagina + 1)}
-                  className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors"
+                  className="px-2.5 py-1.5 rounded border border-gray-200 text-dark-carbon hover:bg-gray-50 transition-colors flex items-center gap-1"
                 >
                   Siguiente
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </Link>
               )}
             </div>

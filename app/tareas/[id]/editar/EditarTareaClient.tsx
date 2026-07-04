@@ -25,29 +25,31 @@ export default function EditarTareaClient({ tarea }: Props) {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <div className="mb-4">
-        <Link
-          href={`/tareas/${tarea.id}`}
-          className="text-sm text-green-700 hover:underline"
-        >
-          &larr; Volver al detalle
-        </Link>
+      <Link
+        href={`/tareas/${tarea.id}`}
+        className="inline-flex items-center gap-1 text-sm text-forest-green hover:text-[#14532d] font-medium mb-6"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Volver al detalle
+      </Link>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h1 className="text-2xl font-bold text-dark-carbon mb-6">Editar tarea</h1>
+        <TareaForm
+          onSubmit={async (formData) => {
+            return await actualizarTarea(tarea.id, formData)
+          }}
+          initialData={tarea}
+        />
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Editar tarea</h1>
-
-      <TareaForm
-        onSubmit={async (formData) => {
-          return await actualizarTarea(tarea.id, formData)
-        }}
-        initialData={tarea}
-      />
-
       <div className="mt-8 pt-6 border-t border-gray-200">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+        <h2 className="text-xs font-semibold text-medium-gray uppercase tracking-wide mb-2">
           Zona de peligro
         </h2>
-        <p className="text-sm text-gray-600 mb-3">
+        <p className="text-sm text-medium-gray mb-3">
           Desactivar una tarea la oculta del listado sin eliminarla definitivamente.
         </p>
         <button

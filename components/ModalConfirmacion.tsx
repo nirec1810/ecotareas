@@ -31,16 +31,16 @@ export default function ModalConfirmacion({
   if (!abierto) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 p-6">
-        <h3 className="text-lg font-semibold text-gray-900">{titulo}</h3>
-        <p className="mt-2 text-sm text-gray-600">{mensaje}</p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white rounded-xl shadow-lg max-w-sm w-full mx-4 p-6">
+        <h3 className="text-lg font-semibold text-dark-carbon">{titulo}</h3>
+        <p className="mt-2 text-sm text-medium-gray">{mensaje}</p>
         <div className="mt-5 flex justify-end gap-3">
           <button
             type="button"
             onClick={onCancelar}
             disabled={confirmando}
-            className="px-4 py-2 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm rounded border border-gray-200 text-medium-gray hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Cancelar
           </button>

@@ -49,14 +49,14 @@ export default function FiltrosTareas() {
   const hayFiltros = estado || fechaDesde || fechaHasta || ubicacion
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-gray-700">Filtros</h3>
+        <h3 className="text-sm font-semibold text-dark-carbon">Filtros</h3>
         {hayFiltros && (
           <button
             type="button"
             onClick={limpiar}
-            className="text-xs text-green-700 hover:underline"
+            className="text-xs text-forest-green hover:text-[#14532d] font-medium"
           >
             Limpiar filtros
           </button>
@@ -65,11 +65,11 @@ export default function FiltrosTareas() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Estado</label>
+          <label className="block text-xs font-medium text-medium-gray mb-1">Estado</label>
           <select
             value={estado}
             onChange={(e) => actualizar('status', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-medium-gray/30 rounded text-sm focus:outline-none focus:ring-2 focus:ring-forest-green"
           >
             {estados.map((e) => (
               <option key={e.valor} value={e.valor}>
@@ -80,33 +80,33 @@ export default function FiltrosTareas() {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Fecha desde</label>
+          <label className="block text-xs font-medium text-medium-gray mb-1">Fecha desde</label>
           <input
             type="date"
             value={fechaDesde}
             onChange={(e) => actualizar('fecha_desde', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-medium-gray/30 rounded text-sm focus:outline-none focus:ring-2 focus:ring-forest-green"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Fecha hasta</label>
+          <label className="block text-xs font-medium text-medium-gray mb-1">Fecha hasta</label>
           <input
             type="date"
             value={fechaHasta}
             onChange={(e) => actualizar('fecha_hasta', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-medium-gray/30 rounded text-sm focus:outline-none focus:ring-2 focus:ring-forest-green"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">Ubicación</label>
+          <label className="block text-xs font-medium text-medium-gray mb-1">Ubicación</label>
           <input
             type="text"
             placeholder="Buscar..."
             value={ubicacion}
             onChange={(e) => actualizar('ubicacion', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-medium-gray/30 rounded text-sm focus:outline-none focus:ring-2 focus:ring-forest-green"
           />
         </div>
       </div>

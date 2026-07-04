@@ -88,8 +88,8 @@ export default function SubirEvidencia({ taskId }: { taskId: string }) {
   }
 
   return (
-    <div className="border-t border-gray-100 pt-4">
-      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+    <div>
+      <h3 className="text-xs font-semibold text-medium-gray uppercase tracking-wide mb-3">
         Evidencia fotográfica
       </h3>
 
@@ -134,14 +134,14 @@ export default function SubirEvidencia({ taskId }: { taskId: string }) {
               className="hidden"
               disabled={enviando}
             />
-            <span className="inline-block px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50 cursor-pointer transition-colors">
+            <span className="inline-block px-4 py-2 border border-gray-200 rounded text-sm text-medium-gray hover:bg-gray-50 cursor-pointer transition-colors">
               {archivo ? archivo.name : 'Seleccionar imagen'}
             </span>
           </label>
           <button
             type="submit"
             disabled={!archivo || enviando}
-            className="px-4 py-2 bg-green-700 text-white rounded text-sm font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-forest-green text-white rounded text-sm font-medium hover:bg-[#14532d] transition-colors disabled:opacity-50"
           >
             {enviando ? 'Subiendo...' : 'Subir'}
           </button>
@@ -158,7 +158,7 @@ export default function SubirEvidencia({ taskId }: { taskId: string }) {
       </form>
 
       {mensaje && (
-        <p className="mt-2 text-xs text-green-600">{mensaje}</p>
+        <p className="mt-2 text-xs text-forest-green">{mensaje}</p>
       )}
       {error && (
         <p className="mt-2 text-xs text-red-600">{error}</p>

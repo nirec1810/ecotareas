@@ -1,8 +1,8 @@
 import type { TaskType } from '@/lib/types'
 
 const colores: Record<TaskType, string> = {
-  reforestacion: 'bg-green-100 text-green-800 border-green-300',
-  limpieza: 'bg-blue-100 text-blue-800 border-blue-300',
+  reforestacion: 'bg-[#4ADE80]/20 text-[#166534] border-[#4ADE80]',
+  limpieza: 'bg-[#60A5FA]/20 text-[#1e40af] border-[#60A5FA]',
   educacion: 'bg-purple-100 text-purple-800 border-purple-300',
   reciclaje: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   otro: 'bg-gray-100 text-gray-800 border-gray-300',

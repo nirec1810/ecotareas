@@ -53,7 +53,7 @@ export default function SelectorEstado({ taskId, statusActual }: Props) {
   return (
     <div>
       {mensaje && (
-        <div className="mb-2 p-2 rounded bg-green-50 border border-green-200 text-green-700 text-xs">
+        <div className="mb-2 p-2 rounded bg-eco-green/10 border border-eco-green/30 text-forest-green text-xs">
           {mensaje}
         </div>
       )}
@@ -70,7 +70,7 @@ export default function SelectorEstado({ taskId, statusActual }: Props) {
             onClick={() => handleCambiar(op.valor)}
             disabled={cargando}
             className="px-3 py-1.5 rounded text-xs font-medium border transition-colors disabled:opacity-50
-              bg-green-700 text-white border-green-700 hover:bg-green-800"
+              bg-forest-green text-white border-forest-green hover:bg-[#14532d]"
           >
             {cargando ? '...' : op.etiqueta}
           </button>

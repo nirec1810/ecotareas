@@ -32,11 +32,11 @@ export default async function MisTareas() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Mis tareas</h1>
+      <h1 className="text-2xl font-bold text-dark-carbon mb-6">Mis tareas</h1>
 
       {tareas.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-lg">No tenés tareas asignadas</p>
+        <div className="text-center py-16">
+          <p className="text-lg text-medium-gray">No tenés tareas asignadas</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -53,16 +53,16 @@ export default async function MisTareas() {
             return (
               <div
                 key={a.id}
-                className="bg-white rounded-lg border border-gray-200 p-4 flex items-center justify-between gap-4"
+                className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center justify-between gap-4 hover:shadow-md transition-shadow"
               >
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/mis-tareas/${task.id}`}
-                    className="font-semibold text-gray-900 truncate hover:text-green-700 hover:underline"
+                    className="font-semibold text-dark-carbon truncate hover:text-forest-green transition-colors"
                   >
                     {task.title}
                   </Link>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-medium-gray">
                     <BadgeTipo type={task.type} />
                     <BadgeEstado status={task.status} />
                     <span>{formatearFecha(task.scheduled_date)}</span>

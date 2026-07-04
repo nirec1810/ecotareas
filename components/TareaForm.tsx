@@ -43,7 +43,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
       )}
 
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="title" className="block text-sm font-medium text-dark-carbon mb-1">
           Título *
         </label>
         <input
@@ -51,7 +51,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
           name="title"
           type="text"
           defaultValue={initialData?.title ?? ''}
-          className={`w-full px-3 py-2 border rounded text-sm ${errors?.title ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-green-500`}
+          className={`w-full px-3 py-2 border rounded text-sm ${errors?.title ? 'border-red-500' : 'border-medium-gray/30'} focus:outline-none focus:ring-2 focus:ring-forest-green`}
         />
         {errors?.title && (
           <p className="mt-1 text-xs text-red-600">{errors.title[0]}</p>
@@ -59,7 +59,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="description" className="block text-sm font-medium text-dark-carbon mb-1">
           Descripción
         </label>
         <textarea
@@ -67,7 +67,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
           name="description"
           rows={4}
           defaultValue={initialData?.description ?? ''}
-          className={`w-full px-3 py-2 border rounded text-sm ${errors?.description ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-green-500`}
+          className={`w-full px-3 py-2 border rounded text-sm ${errors?.description ? 'border-red-500' : 'border-medium-gray/30'} focus:outline-none focus:ring-2 focus:ring-forest-green`}
         />
         {errors?.description && (
           <p className="mt-1 text-xs text-red-600">{errors.description[0]}</p>
@@ -75,14 +75,14 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
       </div>
 
       <div>
-        <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="type" className="block text-sm font-medium text-dark-carbon mb-1">
           Tipo de actividad *
         </label>
         <select
           id="type"
           name="type"
           defaultValue={initialData?.type ?? ''}
-          className={`w-full px-3 py-2 border rounded text-sm ${errors?.type ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-green-500`}
+          className={`w-full px-3 py-2 border rounded text-sm ${errors?.type ? 'border-red-500' : 'border-medium-gray/30'} focus:outline-none focus:ring-2 focus:ring-forest-green`}
         >
           <option value="" disabled>
             Selecciona un tipo
@@ -99,7 +99,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
       </div>
 
       <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="location" className="block text-sm font-medium text-dark-carbon mb-1">
           Ubicación *
         </label>
         <input
@@ -108,7 +108,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
           type="text"
           placeholder="Ej: Parque Central, Av. Siempre Viva"
           defaultValue={initialData?.location ?? ''}
-          className={`w-full px-3 py-2 border rounded text-sm ${errors?.location ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-green-500`}
+          className={`w-full px-3 py-2 border rounded text-sm ${errors?.location ? 'border-red-500' : 'border-medium-gray/30'} focus:outline-none focus:ring-2 focus:ring-forest-green`}
         />
         {errors?.location && (
           <p className="mt-1 text-xs text-red-600">{errors.location[0]}</p>
@@ -117,7 +117,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="latitude" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="latitude" className="block text-sm font-medium text-dark-carbon mb-1">
             Latitud
           </label>
           <input
@@ -127,11 +127,11 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
             step="any"
             placeholder="-34.6037"
             defaultValue={initialData?.latitude ?? ''}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-medium-gray/30 rounded text-sm focus:outline-none focus:ring-2 focus:ring-forest-green"
           />
         </div>
         <div>
-          <label htmlFor="longitude" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="longitude" className="block text-sm font-medium text-dark-carbon mb-1">
             Longitud
           </label>
           <input
@@ -141,13 +141,13 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
             step="any"
             placeholder="-58.3816"
             defaultValue={initialData?.longitude ?? ''}
-            className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 border border-medium-gray/30 rounded text-sm focus:outline-none focus:ring-2 focus:ring-forest-green"
           />
         </div>
       </div>
 
       <div>
-        <label htmlFor="scheduled_date" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="scheduled_date" className="block text-sm font-medium text-dark-carbon mb-1">
           Fecha y hora *
         </label>
         <input
@@ -159,7 +159,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
               ? new Date(initialData.scheduled_date).toISOString().slice(0, 16)
               : ''
           }
-          className={`w-full px-3 py-2 border rounded text-sm ${errors?.scheduled_date ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-green-500`}
+          className={`w-full px-3 py-2 border rounded text-sm ${errors?.scheduled_date ? 'border-red-500' : 'border-medium-gray/30'} focus:outline-none focus:ring-2 focus:ring-forest-green`}
         />
         {errors?.scheduled_date && (
           <p className="mt-1 text-xs text-red-600">{errors.scheduled_date[0]}</p>
@@ -170,7 +170,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className="px-5 py-2 bg-green-700 text-white rounded text-sm font-medium hover:bg-green-800 transition-colors disabled:opacity-50"
+          className="px-5 py-2 bg-forest-green text-white rounded text-sm font-medium hover:bg-[#14532d] transition-colors disabled:opacity-50"
         >
           {pending ? 'Guardando...' : initialData ? 'Guardar cambios' : 'Crear tarea'}
         </button>
@@ -178,7 +178,7 @@ export default function TareaForm({ onSubmit, initialData }: Props) {
           type="button"
           onClick={() => router.back()}
           disabled={pending}
-          className="px-5 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+          className="px-5 py-2 border border-gray-200 text-medium-gray rounded text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
         >
           Cancelar
         </button>
