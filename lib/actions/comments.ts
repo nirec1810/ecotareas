@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sumarPuntos } from '@/lib/actions/gamification'
 import type { CommentWithAuthor } from '@/lib/types'
 
 export async function crearComentario(taskId: string, formData: FormData) {
@@ -30,6 +31,8 @@ export async function crearComentario(taskId: string, formData: FormData) {
   if (error) {
     return { success: false as const, message: 'Error al crear comentario: ' + error.message }
   }
+
+  await sumarPuntos(user.id, 1)
 
   revalidatePath('/mis-tareas/' + taskId)
   revalidatePath('/tareas/' + taskId)

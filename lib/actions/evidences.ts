@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sumarPuntos } from '@/lib/actions/gamification'
 import type { Evidence } from '@/lib/types'
 
 export async function subirEvidencia(formData: FormData) {
@@ -71,6 +72,8 @@ export async function subirEvidencia(formData: FormData) {
   if (insertError) {
     return { success: false as const, message: 'Error al registrar evidencia: ' + insertError.message }
   }
+
+  await sumarPuntos(user.id, 2)
 
   revalidatePath('/mis-tareas/' + taskId)
   revalidatePath('/tareas/' + taskId)

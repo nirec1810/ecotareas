@@ -3,7 +3,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { esquemaTarea } from '@/lib/schemas'
+import { esquemaTarea, esquemaMetricas } from '@/lib/schemas'
+import { registrarAuditoria } from '@/lib/actions/audit'
+import { sumarPuntos } from '@/lib/actions/gamification'
 import type { Task, PaginatedResult, TaskStatus, TaskFilters } from '@/lib/types'
 
 async function verificarCoordinator(supabase: Awaited<ReturnType<typeof createClient>>) {
@@ -25,7 +27,7 @@ async function verificarCoordinator(supabase: Awaited<ReturnType<typeof createCl
 
 export async function crearTarea(formData: FormData) {
   const supabase = await createClient()
-  await verificarCoordinator(supabase)
+  const user = await verificarCoordinator(supabase)
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = esquemaTarea.safeParse(raw)
@@ -60,6 +62,8 @@ export async function crearTarea(formData: FormData) {
       message: 'Error al crear la tarea: ' + error.message,
     }
   }
+
+  await registrarAuditoria(data.id, user.id, 'created')
 
   revalidatePath('/tareas')
   redirect('/tareas')
@@ -142,7 +146,7 @@ export async function obtenerTareaPorId(id: string): Promise<Task | null> {
 
 export async function actualizarTarea(id: string, formData: FormData) {
   const supabase = await createClient()
-  await verificarCoordinator(supabase)
+  const user = await verificarCoordinator(supabase)
 
   const raw = Object.fromEntries(formData.entries())
   const parsed = esquemaTarea.safeParse(raw)
@@ -154,6 +158,12 @@ export async function actualizarTarea(id: string, formData: FormData) {
       message: 'Corrige los errores del formulario',
     }
   }
+
+  const { data: tareaAnterior } = await supabase
+    .from('tasks')
+    .select('title, description, type, location, latitude, longitude, scheduled_date')
+    .eq('id', id)
+    .single()
 
   const { error } = await supabase
     .from('tasks')
@@ -175,13 +185,24 @@ export async function actualizarTarea(id: string, formData: FormData) {
     }
   }
 
+  const changedFields: Record<string, any> = {}
+  if (tareaAnterior) {
+    const nuevos = parsed.data
+    for (const key of Object.keys(nuevos) as (keyof typeof nuevos)[]) {
+      if (JSON.stringify((tareaAnterior as any)[key]) !== JSON.stringify(nuevos[key])) {
+        changedFields[key] = { from: (tareaAnterior as any)[key], to: nuevos[key] }
+      }
+    }
+  }
+  await registrarAuditoria(id, user.id, 'updated', changedFields)
+
   revalidatePath('/tareas')
   redirect('/tareas/' + id)
 }
 
 export async function desactivarTarea(id: string) {
   const supabase = await createClient()
-  await verificarCoordinator(supabase)
+  const user = await verificarCoordinator(supabase)
 
   const { error } = await supabase
     .from('tasks')
@@ -194,6 +215,8 @@ export async function desactivarTarea(id: string) {
       message: 'Error al desactivar la tarea: ' + error.message,
     }
   }
+
+  await registrarAuditoria(id, user.id, 'deactivated')
 
   revalidatePath('/tareas')
   redirect('/tareas')
@@ -245,6 +268,10 @@ export async function actualizarEstadoTarea(taskId: string, nuevoEstado: TaskSta
     }
   }
 
+  if (nuevoEstado === 'completed') {
+    return { success: false as const, requiresMetrics: true as const, message: 'Completar' }
+  }
+
   const { error: taskError } = await supabase
     .from('tasks')
     .update({ status: nuevoEstado })
@@ -254,15 +281,95 @@ export async function actualizarEstadoTarea(taskId: string, nuevoEstado: TaskSta
     return { success: false as const, message: 'Error al actualizar estado: ' + taskError.message }
   }
 
-  if (nuevoEstado === 'completed') {
-    await supabase
-      .from('assignments')
-      .update({ completed_at: new Date().toISOString() })
-      .eq('id', assignment.id)
-  }
+  await registrarAuditoria(taskId, user.id, 'status_changed')
 
   revalidatePath('/mis-tareas')
   revalidatePath('/tareas')
 
   return { success: true as const, message: 'Estado actualizado correctamente' }
+}
+
+export async function confirmarCompletarTarea(
+  taskId: string,
+  formData: FormData
+): Promise<{ success: boolean; message: string; errors?: Record<string, string[]> }> {
+  const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { success: false, message: 'No autorizado' }
+  }
+
+  const { data: assignment } = await supabase
+    .from('assignments')
+    .select('id, status')
+    .eq('task_id', taskId)
+    .eq('volunteer_id', user.id)
+    .neq('status', 'rejected')
+    .order('assigned_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (!assignment) {
+    return { success: false, message: 'No tenés esta tarea asignada' }
+  }
+
+  const { data: tarea } = await supabase
+    .from('tasks')
+    .select('status')
+    .eq('id', taskId)
+    .single()
+
+  if (!tarea || tarea.status !== 'in_progress') {
+    return { success: false, message: 'La tarea no se puede completar' }
+  }
+
+  const raw = Object.fromEntries(formData.entries())
+  const parsed = esquemaMetricas.safeParse(raw)
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      errors: parsed.error.flatten().fieldErrors,
+      message: 'Corrige los errores del formulario',
+    }
+  }
+
+  const { error: metricError } = await supabase.from('task_metrics').upsert(
+    {
+      task_id: taskId,
+      trees_planted: parsed.data.trees_planted,
+      waste_kg: parsed.data.waste_kg,
+      registered_by: user.id,
+    },
+    { onConflict: 'task_id' }
+  )
+
+  if (metricError) {
+    return { success: false, message: 'Error al guardar métricas: ' + metricError.message }
+  }
+
+  const { error: taskError } = await supabase
+    .from('tasks')
+    .update({ status: 'completed' })
+    .eq('id', taskId)
+
+  if (taskError) {
+    return { success: false, message: 'Error al actualizar estado: ' + taskError.message }
+  }
+
+  await supabase
+    .from('assignments')
+    .update({ completed_at: new Date().toISOString() })
+    .eq('id', assignment.id)
+
+  await registrarAuditoria(taskId, user.id, 'status_changed')
+
+  await sumarPuntos(user.id, 10)
+
+  revalidatePath('/mis-tareas')
+  revalidatePath('/tareas')
+  revalidatePath('/dashboard')
+
+  return { success: true, message: 'Tarea completada correctamente' }
 }

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { registrarAuditoria } from '@/lib/actions/audit'
 import type { Profile, AssignmentWithTask } from '@/lib/types'
 
 export async function obtenerVoluntariosDisponibles(): Promise<Profile[]> {
@@ -11,6 +12,7 @@ export async function obtenerVoluntariosDisponibles(): Promise<Profile[]> {
     .from('profiles')
     .select('id, full_name, role')
     .eq('role', 'volunteer')
+    .eq('is_active', true)
     .order('full_name', { ascending: true })
 
   if (error) {
@@ -79,6 +81,8 @@ export async function asignarVoluntario(taskId: string, volunteerId: string) {
   if (error) {
     return { success: false as const, message: 'Error al asignar: ' + error.message }
   }
+
+  await registrarAuditoria(taskId, user.id, 'assigned')
 
   revalidatePath('/tareas/' + taskId)
   revalidatePath('/tareas')

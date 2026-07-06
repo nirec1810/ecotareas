@@ -10,8 +10,19 @@ export interface Profile {
   id: string
   full_name: string
   role: UserRole
+  avatar_url: string | null
+  phone: string | null
+  bio: string | null
+  is_active: boolean
+  points: number
   created_at: string
   updated_at: string
+}
+
+export interface ProfileUpdate {
+  full_name: string
+  phone: string | null
+  bio: string | null
 }
 
 export interface Task {
@@ -79,4 +90,67 @@ export interface TaskFilters {
   fecha_desde?: string
   fecha_hasta?: string
   ubicacion?: string
+}
+
+export interface TaskMetrics {
+  id: string
+  task_id: string
+  trees_planted: number
+  waste_kg: number
+  registered_by: string
+  created_at: string
+}
+
+export interface ImpactIndicators {
+  tareasCompletadas: number
+  voluntariosParticipantes: number
+  arbolesPlantados: number
+  residuosRecolectados: number
+}
+
+export interface Badge {
+  id: string
+  name: string
+  description: string
+  icon_url: string | null
+  threshold_points: number
+}
+
+export interface UserBadge {
+  user_id: string
+  badge_id: string
+  awarded_at: string
+  badge?: Badge
+}
+
+export interface AuditLog {
+  id: string
+  task_id: string
+  user_id: string
+  action: string
+  changed_fields: Record<string, any> | null
+  created_at: string
+  profiles?: { full_name: string }
+}
+
+export interface VoluntarioConEmail {
+  id: string
+  full_name: string
+  email: string
+  role: UserRole
+  avatar_url: string | null
+  phone: string | null
+  bio: string | null
+  is_active: boolean
+  points: number
+  created_at: string
+}
+
+export interface RankingEntry {
+  id: string
+  full_name: string
+  avatar_url: string | null
+  points: number
+  position: number
+  badges: Badge[]
 }

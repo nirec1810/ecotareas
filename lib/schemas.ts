@@ -40,3 +40,18 @@ export const esquemaPassword = z.object({
   message: 'Las contraseñas no coinciden',
   path: ['confirmar_password'],
 })
+
+export const esquemaMetricas = z.object({
+  trees_planted: z.coerce.number().int().min(0, 'No puede ser negativo').max(99999, 'Máximo 99999'),
+  waste_kg: z.coerce.number().min(0, 'No puede ser negativo').max(999999, 'Máximo 999999'),
+})
+
+export type MetricasInput = z.infer<typeof esquemaMetricas>
+
+export const esquemaPerfil = z.object({
+  full_name: z.string().min(2, 'El nombre es obligatorio').max(100, 'Máximo 100 caracteres'),
+  phone: z.string().max(20, 'Máximo 20 caracteres').optional().nullable().default(null),
+  bio: z.string().max(500, 'Máximo 500 caracteres').optional().nullable().default(null),
+})
+
+export type PerfilInput = z.infer<typeof esquemaPerfil>

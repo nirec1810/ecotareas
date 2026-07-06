@@ -39,9 +39,17 @@ export async function updateSession(request: NextRequest) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, is_active')
     .eq('id', user.id)
     .single()
+
+  if (profile && profile.is_active === false) {
+    await supabase.auth.signOut()
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('cuenta_desactivada', '1')
+    return NextResponse.redirect(url)
+  }
 
   const role = profile?.role
   const pathname = request.nextUrl.pathname
@@ -53,7 +61,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL('/mis-tareas', request.url))
   }
 
-  if (role === 'volunteer' && (pathname.startsWith('/tareas') || pathname.startsWith('/mapa'))) {
+  if (role === 'volunteer' && (pathname.startsWith('/tareas') || pathname.startsWith('/mapa') || pathname.startsWith('/dashboard') || pathname.startsWith('/calendario') || pathname.startsWith('/usuarios'))) {
     return NextResponse.redirect(new URL('/mis-tareas', request.url))
   }
 

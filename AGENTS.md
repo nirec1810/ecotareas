@@ -15,11 +15,23 @@ There are no tests. `npm run build` is the only verification step.
 ## Architecture
 
 - **No `src/` directory** — app, lib, components live at project root
-- **Two roles**: `coordinator` (manages tasks, assigns volunteers, sees `/tareas`) and `volunteer` (sees `/mis-tareas`)
-- **Middleware** at `proxy.ts` (not `middleware.ts`) enforces role-based route access via `lib/supabase/middleware.ts`
+- **Two roles**: `coordinator` (manages tasks, assigns volunteers, dashboard, calendar, user admin) and `volunteer` (my tasks, ranking, profile)
+- **Middleware** at `proxy.ts` (not `middleware.ts`) enforces role-based route access + `is_active` check via `lib/supabase/middleware.ts`
 - **Server Actions** in `lib/actions/` — all mutations go through `'use server'` functions, never direct client API calls
-- **Zod schemas** in `lib/schemas.ts` for form validation (task, registration, login, password)
+- **Zod schemas** in `lib/schemas.ts` (task, registration, login, password, metrics, profile)
 - **Types** in `lib/types.ts` — all shared interfaces and type unions
+- **Helpers** in `lib/actions/` (no `'use server'`): `gamification.ts`, `audit.ts` — imported by Server Actions
+
+## Routes
+
+| Route | Access | Sprint |
+|-------|--------|--------|
+| `/tareas`, `/tareas/nueva`, `/tareas/[id]`, `/tareas/[id]/editar` | Coordinator | 1 |
+| `/mis-tareas`, `/mis-tareas/[id]` | Volunteer | 2 |
+| `/mapa` | Coordinator | 3 |
+| `/dashboard`, `/calendario` | Coordinator | 4 |
+| `/perfil`, `/ranking` | Both | 5 |
+| `/usuarios` | Coordinator | 5 |
 
 ## Supabase
 
@@ -27,8 +39,20 @@ There are no tests. `npm run build` is the only verification step.
 - **Browser client**: `lib/supabase/client.ts` — `createBrowserClient` from `@supabase/ssr`
 - **Auth confirmation is disabled** — users get a session immediately after signup (no email verification flow)
 - **Env vars**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_SITE_URL` in `.env.local`
-- **Storage bucket**: `evidencias` — path pattern `{user_id}/{taskId}/{timestamp}-{filename}`. RLS policies needed for authenticated read + insert to own folder
-- **Profile creation**: handled by Supabase DB trigger on auth signup (not in app code). The `profiles` table has `id`, `full_name`, `role`
+- **Storage buckets**:
+  - `evidencias` — path `{user_id}/{taskId}/{timestamp}-{filename}`. Authenticated read + insert to own folder.
+  - `avatars` — public read, authenticated insert own folder.
+- **Profile creation**: handled by Supabase DB trigger on auth signup. Profiles table: `id`, `full_name`, `role`, `avatar_url`, `phone`, `bio`, `is_active`, `points`
+
+## Key tables (beyond auth schema)
+
+- `profiles` — user info + gamification fields
+- `tasks` — CRUD with soft-delete via `is_active`
+- `assignments` — task-volunteer assignment lifecycle
+- `comments`, `evidences` — per-task social features
+- `task_metrics` — impact data (trees_planted, waste_kg)
+- `task_audit_log` — immutable change history (INSERT + SELECT only)
+- `badges`, `user_badges` — gamification thresholds
 
 ## Next.js 16 Specifics
 
@@ -53,4 +77,8 @@ Key differences observed:
 - Supabase `.single()` returns `null` on no match — TypeScript needs explicit type assertions for the result
 - `revalidatePath` must be called after mutations for ISR pages to update
 - The `tasks.status` is the source of truth for operational state; `assignments.status` is for assignment lifecycle (assigned/accepted/rejected)
-- `listarTareas` changed signature in Sprint 3: `(page, pageSize, filters?)` — the optional `filters` param must be passed as `undefined` (not omitted) when no filters apply, to maintain type compatibility
+- `listarTareas` signature: `(page, pageSize, filters?)` — pass `undefined` (not omit) when no filters apply
+- `get_user_emails()` is a SECURITY DEFINER SQL function in auth schema — never expose service_role key
+- `task_audit_log` is INSERT-only from Server Actions — never UPDATE or DELETE programmatically
+- `confirmarCompletarTarea` triggers `sumarPuntos(10)` + badge check — must run after metrics insert
+- `subirEvidencia` creates file at path `{userId}/{taskId}/...` — bucket RLS must allow this pattern

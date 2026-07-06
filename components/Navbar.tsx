@@ -9,6 +9,7 @@ interface Props {
     id: string
     full_name: string
     role: 'coordinator' | 'volunteer'
+    avatar_url: string | null
   } | null
 }
 
@@ -18,6 +19,10 @@ export default function Navbar({ profile }: Props) {
   const isActive = (href: string) => {
     if (href === '/tareas') return pathname === '/tareas' || pathname.startsWith('/tareas/')
     if (href === '/mis-tareas') return pathname === '/mis-tareas' || pathname.startsWith('/mis-tareas/')
+    if (href === '/dashboard') return pathname === '/dashboard'
+    if (href === '/calendario') return pathname === '/calendario'
+    if (href === '/usuarios') return pathname === '/usuarios'
+    if (href === '/ranking') return pathname === '/ranking'
     return pathname === href
   }
 
@@ -50,6 +55,36 @@ export default function Navbar({ profile }: Props) {
                   Tareas
                 </Link>
                 <Link
+                  href="/dashboard"
+                  className={`px-1 pb-1 border-b-2 transition-colors ${
+                    isActive('/dashboard')
+                      ? 'text-forest-green border-forest-green'
+                      : 'text-dark-carbon border-transparent hover:text-forest-green'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/calendario"
+                  className={`px-1 pb-1 border-b-2 transition-colors ${
+                    isActive('/calendario')
+                      ? 'text-forest-green border-forest-green'
+                      : 'text-dark-carbon border-transparent hover:text-forest-green'
+                  }`}
+                >
+                  Calendario
+                </Link>
+                <Link
+                  href="/usuarios"
+                  className={`px-1 pb-1 border-b-2 transition-colors ${
+                    isActive('/usuarios')
+                      ? 'text-forest-green border-forest-green'
+                      : 'text-dark-carbon border-transparent hover:text-forest-green'
+                  }`}
+                >
+                  Usuarios
+                </Link>
+                <Link
                   href="/mapa"
                   className={`px-1 pb-1 border-b-2 transition-colors ${
                     isActive('/mapa')
@@ -69,17 +104,40 @@ export default function Navbar({ profile }: Props) {
             )}
 
             {profile.role === 'volunteer' && (
-              <Link
-                href="/mis-tareas"
-                className={`px-1 pb-1 border-b-2 transition-colors ${
-                  isActive('/mis-tareas')
-                    ? 'text-forest-green border-forest-green'
-                    : 'text-dark-carbon border-transparent hover:text-forest-green'
-                }`}
-              >
-                Mis tareas
-              </Link>
+              <>
+                <Link
+                  href="/mis-tareas"
+                  className={`px-1 pb-1 border-b-2 transition-colors ${
+                    isActive('/mis-tareas')
+                      ? 'text-forest-green border-forest-green'
+                      : 'text-dark-carbon border-transparent hover:text-forest-green'
+                  }`}
+                >
+                  Mis tareas
+                </Link>
+                <Link
+                  href="/ranking"
+                  className={`px-1 pb-1 border-b-2 transition-colors ${
+                    isActive('/ranking')
+                      ? 'text-forest-green border-forest-green'
+                      : 'text-dark-carbon border-transparent hover:text-forest-green'
+                  }`}
+                >
+                  Ranking
+                </Link>
+              </>
             )}
+
+            <Link
+              href="/perfil"
+              className={`px-1 pb-1 border-b-2 transition-colors ${
+                isActive('/perfil')
+                  ? 'text-forest-green border-forest-green'
+                  : 'text-dark-carbon border-transparent hover:text-forest-green'
+              }`}
+            >
+              Perfil
+            </Link>
 
             <form action={cerrarSesion}>
               <button

@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EcoTareas
 
-## Getting Started
+Gestión de brigadas de voluntariado ambiental. Aplicación web con Next.js 16 + Supabase + Tailwind CSS v4.
 
-First, run the development server:
+## Funcionalidades
+
+- **Autenticación** con roles (coordinator/volunteer), registro, login, recuperación de contraseña
+- **CRUD de tareas** con tipos (reforestación, limpieza, educación, reciclaje, otro), ubicación con coordenadas, fechas programadas
+- **Asignación de voluntarios** a tareas, cambio de estado (pendiente → en progreso → completada)
+- **Evidencias fotográficas** con geolocalización, subidas a Supabase Storage
+- **Comentarios** por tarea
+- **Mapa interactivo** con Leaflet mostrando todas las tareas activas
+- **Filtros** por estado, fecha y ubicación
+- **Dashboard de impacto**: tareas completadas, voluntarios participantes, árboles plantados, residuos recolectados
+- **Calendario de brigadas**: vista mensual/semanal con react-big-calendar
+- **Reportes exportables**: PDF (jsPDF) y Excel (SheetJS)
+- **Recordatorios**: tareas próximas en 24h visibles en el listado del voluntario
+- **Perfil de usuario**: nombre, foto (bucket avatars), teléfono, biografía
+- **Administración de cuentas**: coordinador puede activar/desactivar voluntarios, buscar por nombre/correo
+- **Gamificación**: puntos por completar tareas (+10), subir evidencias (+2) y comentar (+1); 5 insignias por thresholds; ranking público
+- **Auditoría**: historial inmutable de cambios sobre cada tarea
+
+## Requisitos
+
+- Node.js 20+
+- Cuenta Supabase (gratuita)
+
+## Instalación
 
 ```bash
+npm install
+cp .env.local.example .env.local  # Completar vars de Supabase
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Variables de entorno
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_SUPABASE_URL=https://[project].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[anon_key]
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Base de datos
 
-## Learn More
+Ejecutar las migraciones SQL de los sprints en Supabase Studio (ver historial de sprints). No hay migraciones automáticas — el schema se aplica manualmente.
 
-To learn more about Next.js, take a look at the following resources:
+## Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 (proxy.ts middleware, Server Actions, App Router), Supabase (auth, PostgreSQL, Storage), Tailwind CSS v4, TypeScript, Zod, Leaflet, react-big-calendar, jsPDF, SheetJS.

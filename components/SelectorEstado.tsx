@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { actualizarEstadoTarea } from '@/lib/actions/tasks'
+import FormularioMetricas from '@/components/FormularioMetricas'
 import type { TaskStatus } from '@/lib/types'
 
 interface Props {
@@ -19,9 +20,15 @@ export default function SelectorEstado({ taskId, statusActual }: Props) {
   const [mensaje, setMensaje] = useState('')
   const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
+  const [mostrarMetricas, setMostrarMetricas] = useState(false)
   const router = useRouter()
 
   const handleCambiar = useCallback(async (nuevoEstado: TaskStatus) => {
+    if (nuevoEstado === 'completed') {
+      setMostrarMetricas(true)
+      return
+    }
+
     setCargando(true)
     setMensaje('')
     setError('')
@@ -38,6 +45,10 @@ export default function SelectorEstado({ taskId, statusActual }: Props) {
     setCargando(false)
   }, [taskId, router])
 
+  const handleMetricasCerradas = useCallback(() => {
+    setMostrarMetricas(false)
+  }, [])
+
   if (statusActual === 'completed' || statusActual === 'cancelled') {
     return null
   }
@@ -52,6 +63,10 @@ export default function SelectorEstado({ taskId, statusActual }: Props) {
 
   return (
     <div>
+      {mostrarMetricas && (
+        <FormularioMetricas taskId={taskId} onCerrar={handleMetricasCerradas} />
+      )}
+
       {mensaje && (
         <div className="mb-2 p-2 rounded bg-eco-green/10 border border-eco-green/30 text-forest-green text-xs">
           {mensaje}

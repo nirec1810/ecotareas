@@ -5,6 +5,7 @@ import { obtenerTareaPorId } from '@/lib/actions/tasks'
 import { obtenerAsignacionDeTarea } from '@/lib/actions/assignments'
 import { listarEvidenciasPorTarea } from '@/lib/actions/evidences'
 import { listarComentariosPorTarea } from '@/lib/actions/comments'
+import { obtenerHistorialTarea } from '@/lib/actions/audit'
 import BadgeEstado from '@/components/BadgeEstado'
 import BadgeTipo from '@/components/BadgeTipo'
 import AsignarVoluntario from '@/components/AsignarVoluntario'
@@ -15,6 +16,17 @@ function formatearFecha(iso: string) {
     dateStyle: 'long',
     timeStyle: 'short',
   }).format(new Date(iso))
+}
+
+function formatearAccion(action: string) {
+  const acciones: Record<string, string> = {
+    created: 'Tarea creada',
+    updated: 'Tarea actualizada',
+    status_changed: 'Estado cambiado',
+    deactivated: 'Tarea desactivada',
+    assigned: 'Voluntario asignado',
+  }
+  return acciones[action] ?? action
 }
 
 interface Props {
@@ -42,9 +54,10 @@ export default async function DetalleTarea({ params }: Props) {
     : null
 
   const { voluntario } = await obtenerAsignacionDeTarea(id)
-  const [evidencias, comentarios] = await Promise.all([
+  const [evidencias, comentarios, historial] = await Promise.all([
     listarEvidenciasPorTarea(id),
     listarComentariosPorTarea(id),
+    perfilUsuario?.role === 'coordinator' ? obtenerHistorialTarea(id) : Promise.resolve([]),
   ])
 
   return (
@@ -156,6 +169,52 @@ export default async function DetalleTarea({ params }: Props) {
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm mt-4 p-6">
         <ComentariosTarea taskId={tarea.id} />
       </div>
+
+      {perfilUsuario?.role === 'coordinator' && historial.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm mt-4 p-6">
+          <h2 className="text-sm font-semibold text-medium-gray uppercase tracking-wide mb-3">
+            Historial de cambios
+          </h2>
+          <div className="space-y-3">
+            {historial.map((entry) => (
+              <div
+                key={entry.id}
+                className="flex items-start gap-3 text-xs"
+              >
+                <div className="shrink-0 mt-0.5">
+                  <div className="w-2 h-2 rounded-full bg-forest-green" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-dark-carbon">
+                      {entry.profiles?.full_name ?? 'Desconocido'}
+                    </span>
+                    <span className="text-medium-gray">·</span>
+                    <span className="text-medium-gray">
+                      {formatearAccion(entry.action)}
+                    </span>
+                  </div>
+                  <p className="text-medium-gray mt-0.5">
+                    {new Intl.DateTimeFormat('es-AR', {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                    }).format(new Date(entry.created_at))}
+                  </p>
+                  {entry.changed_fields && Object.keys(entry.changed_fields).length > 0 && (
+                    <div className="mt-1 text-medium-gray">
+                      {Object.entries(entry.changed_fields).map(([field, diff]) => (
+                        <span key={field} className="inline-block mr-2">
+                          {field}: {(diff as any).from} → {(diff as any).to}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
