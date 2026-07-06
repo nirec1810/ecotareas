@@ -52,6 +52,7 @@ export async function crearTarea(formData: FormData) {
       scheduled_date: parsed.data.scheduled_date,
       status: 'pending',
       is_active: true,
+      created_by: user.id,
     })
     .select()
     .single()
