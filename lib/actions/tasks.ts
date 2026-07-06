@@ -321,8 +321,29 @@ export async function confirmarCompletarTarea(
     .eq('id', taskId)
     .single()
 
-  if (!tarea || tarea.status !== 'in_progress') {
+  if (!tarea || (tarea.status !== 'in_progress' && tarea.status !== 'pending')) {
     return { success: false, message: 'La tarea no se puede completar' }
+  }
+
+  if (tarea.status === 'pending') {
+    const { count: evidenciaCount } = await supabase
+      .from('evidences')
+      .select('id', { count: 'exact', head: true })
+      .eq('task_id', taskId)
+      .eq('user_id', user.id)
+
+    const { count: comentariosCount } = await supabase
+      .from('comments')
+      .select('id', { count: 'exact', head: true })
+      .eq('task_id', taskId)
+      .eq('user_id', user.id)
+
+    if (!evidenciaCount || !comentariosCount) {
+      return {
+        success: false,
+        message: 'Debés subir al menos una imagen y hacer un comentario antes de completar',
+      }
+    }
   }
 
   const raw = Object.fromEntries(formData.entries())

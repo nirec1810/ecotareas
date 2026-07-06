@@ -9,6 +9,8 @@ import type { TaskStatus } from '@/lib/types'
 interface Props {
   taskId: string
   statusActual: TaskStatus
+  tieneEvidencia?: boolean
+  tieneComentarios?: boolean
 }
 
 const opciones: { valor: TaskStatus; etiqueta: string }[] = [
@@ -16,7 +18,7 @@ const opciones: { valor: TaskStatus; etiqueta: string }[] = [
   { valor: 'completed', etiqueta: 'Completada' },
 ]
 
-export default function SelectorEstado({ taskId, statusActual }: Props) {
+export default function SelectorEstado({ taskId, statusActual, tieneEvidencia = false, tieneComentarios = false }: Props) {
   const [mensaje, setMensaje] = useState('')
   const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
@@ -54,7 +56,11 @@ export default function SelectorEstado({ taskId, statusActual }: Props) {
   }
 
   const disponibles = opciones.filter((o) => {
-    if (statusActual === 'pending') return o.valor === 'in_progress'
+    if (statusActual === 'pending') {
+      if (o.valor === 'in_progress') return true
+      if (o.valor === 'completed') return tieneEvidencia && tieneComentarios
+      return false
+    }
     if (statusActual === 'in_progress') return o.valor === 'completed'
     return false
   })

@@ -28,6 +28,21 @@ export default async function DetalleMisTarea({ params }: Props) {
     redirect('/login')
   }
 
+  const { count: evidenciaCount } = await supabase
+    .from('evidences')
+    .select('id', { count: 'exact', head: true })
+    .eq('task_id', id)
+    .eq('user_id', user.id)
+
+  const { count: comentariosCount } = await supabase
+    .from('comments')
+    .select('id', { count: 'exact', head: true })
+    .eq('task_id', id)
+    .eq('user_id', user.id)
+
+  const tieneEvidencia = (evidenciaCount ?? 0) > 0
+  const tieneComentarios = (comentariosCount ?? 0) > 0
+
   const { data: assignment } = await supabase
     .from('assignments')
     .select('id')
@@ -66,7 +81,12 @@ export default async function DetalleMisTarea({ params }: Props) {
           <BadgeTipo type={tarea.type} />
         </div>
 
-        <SelectorEstado taskId={tarea.id} statusActual={tarea.status} />
+        <SelectorEstado
+          taskId={tarea.id}
+          statusActual={tarea.status}
+          tieneEvidencia={tieneEvidencia}
+          tieneComentarios={tieneComentarios}
+        />
 
         {tarea.description && (
           <div className="mt-4">
